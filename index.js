@@ -1,11 +1,14 @@
 const express = require('express')
-const session = require('express-session')
+const cookieParser = require('cookie-parser')
 const exphbs  = require('express-handlebars')
 const bodyParser = require('body-parser')
 const csrf = require('csurf')
 const helmet = require('helmet')
 const bcrypt = require('bcrypt')
 
+const csrfProtection = csrf({
+  cookie: true
+})
 const app = express()
 
 const user = {
@@ -21,6 +24,9 @@ app.use(bodyParser.urlencoded({
 // parse application/json
 app.use(bodyParser.json())
 
+// parse cookies
+app.use(cookieParser())
+
 // security headers
 app.use(helmet())
 
@@ -31,28 +37,35 @@ app.engine('.hbs', exphbs({
 }))
 app.set('view engine', '.hbs')
 
-app.get('/', (req, res) => {
-  res.render('home')
+app.get('/', csrfProtection, (req, res) => {
+  res.render('home', {
+    csrfToken: req.csrfToken()
+  })
 })
 
-app.post('/login', (req, res, next) => {
+app.post('/login', csrfProtection, (req, res, next) => {
   const username = req.body.username
   const password = req.body.password
 
   // fixed time comparison
-  bcrypt.compare(password, user.password, (err, res) => {
+  bcrypt.compare(password, user.password, (err, result) => {
     if (err) {
       return next (err)
     }
 
     // the passwords don't match
-    if (!res) {
+    if (!result) {
       return res.sendStatus(401)
     }
 
     // set cookies..., etc...
     res.send('match!')
   })
+})
+
+app.use((err, req, res, next) => {
+  console.log(err)
+  res.sendStatus(500)
 })
 
 app.listen(3000)

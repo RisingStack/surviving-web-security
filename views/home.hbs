@@ -1,1 +1,9 @@
 <h1>Hello Security</h1>
+
+
+<form action="/login" method="post">
+  <input name="username" type="text">
+  <input name="password" type="password">
+  <input type="hidden" name="_csrf" value="{{csrfToken}}">
+  <input type="submit" value="login">
+</form>
