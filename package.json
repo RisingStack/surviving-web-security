@@ -19,6 +19,8 @@
   },
   "homepage": "https://github.com/RisingStack/surviving-web-security#readme",
   "dependencies": {
+    "bcrypt": "0.8.5",
+    "body-parser": "1.15.0",
     "csurf": "1.8.3",
     "express": "4.13.4",
     "express-handlebars": "3.0.0",
